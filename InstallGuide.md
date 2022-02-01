@@ -109,7 +109,9 @@ Install bootloader, plus the networking stuff we'll need after a reboot
 
 # basics
 Update package manager
+
     pacman -Syu
+    
 Install KDE plasma plus a set of basic utils and drivers for the NVIDIA card and bluetooth
 
     pacman -S xorg-server xf86-video-amdgpu mesa mesa-demos firefox plasma-desktop konsole kate pipewire pipewire-pulse pipewire-alsa bluez bluez-utils sddm nvidia nvidia-utils nvidia-prime
