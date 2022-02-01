@@ -40,63 +40,82 @@ Mount the root partition, create a boot directory and mount the EFI partition
 
 
 # base system
-pacstrap /mnt base base-devel linux linux-firmware nano 
-genfstab -U /mnt >> /mnt/etc/fstab
+
+    pacstrap /mnt base base-devel linux linux-firmware nano 
+
+    genfstab -U /mnt >> /mnt/etc/fstab
 
 # chroot
-arch-chroot /mnt
 
-# timezone
-ln -sf /usr/share/zoneinfo/Pacific/Auckland /etc/localtime
-hwclock --systohc
+    arch-chroot /mnt
+
+# set timezone
+
+    ln -sf /usr/share/zoneinfo/Pacific/Auckland /etc/localtime
+
+    hwclock --systohc
 
 # locale
-nano /etc/locale.gen (uncomment en_US.UTF-8,..)
-locale-gen
-echo "LANG=en_US.UTF-8" > /etc/locale.conf
+
+    nano /etc/locale.gen (uncomment en_US.UTF-8 etc.)
+    locale-gen
+    echo "LANG=en_US.UTF-8" > /etc/locale.conf
 
 # hostname
-echo "archlaptop" > /etc/hostname
-echo "127.0.0.1 localhost
-::1 localhost
-127.0.0.1 archlaptop.localdomain archlaptop" >> /etc/hosts
+
+    echo "archlaptop" > /etc/hostname
+    echo "127.0.0.1 localhost
+    ::1 localhost
+    127.0.0.1 archlaptop.localdomain archlaptop" >> /etc/hosts
 
 # password
-passwd
 
-useradd -m <user>
-usermod -aG wheel,audio,video,optical,storage <user>
-passwd <user>
-nano /etc/sudoers 
+    passwd
+    <MY ROOT PASSWORD GOES HERE>
+
+    useradd -m <user>
+    usermod -aG wheel,audio,video,optical,storage <user>
+    passwd <user>
+    nano /etc/sudoers (enable the wheel group)
 
 # swapfile
-dd if=/dev/zero of=/swapfile bs=1M count=16384 status=progress
-chmod 600 /swapfile
-mkswap /swapfile
-swapon /swapfile
+Creates a 16GB swapfile
 
-nano /etc/fstab
-/swapfile none swap defaults 0 0
+    dd if=/dev/zero of=/swapfile bs=1M count=16384 status=progress
+    chmod 600 /swapfile
+    mkswap /swapfile
+    swapon /swapfile
+
+    nano /etc/fstab (add following:)
+    /swapfile none swap defaults 0 0
 
 # bootloader
-pacman -S grub efibootmgr networkmanager wpa_supplicant amd-ucode
+Install bootloader, plus the networking stuff we'll need after a reboot
 
-grub-install /dev/nvme0n1
-grub-mkconfig -o /boot/grub/grub.cfg
+    pacman -S grub efibootmgr networkmanager wpa_supplicant amd-ucode
 
-systemctl enable NetworkManager
-systemctl enable wpa_supplicant
+    grub-install /dev/nvme0n1
+    grub-mkconfig -o /boot/grub/grub.cfg
 
-exit
-reboot
+    systemctl enable NetworkManager
+    systemctl enable wpa_supplicant
+
+    exit
+    reboot
 
 # connect
-nmcli device wifi connect <SSID> password <SSID_PASSWORD>
+
+    nmcli device wifi connect <SSID> password <SSID_PASSWORD>
 
 # basics
-pacman -Syu
-pacman -S xorg-server xf86-video-amdgpu mesa mesa-demos firefox plasma-desktop konsole kate pipewire pipewire-pulse pipewire-alsa bluez bluez-utils sddm nvidia nvidia-utils nvidia-prime
+Update package manager
+    pacman -Syu
+Install KDE plasma plus a set of basic utils and drivers for the NVIDIA card and bluetooth
 
-systemctl enable sddm
-systemctl enable bluetooth
+    pacman -S xorg-server xf86-video-amdgpu mesa mesa-demos firefox plasma-desktop konsole kate pipewire pipewire-pulse pipewire-alsa bluez bluez-utils sddm nvidia nvidia-utils nvidia-prime
+
+    systemctl enable sddm
+    systemctl enable bluetooth
+
+    reboot
 
